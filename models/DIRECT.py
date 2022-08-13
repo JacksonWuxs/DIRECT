@@ -140,7 +140,7 @@ class DIRECT(tc.nn.Module):
 
     def _rate_reduction(self):
         X, S, M = self._cache["mention_proj"], self._cache["item_ids"], self._cache["item_mask"]
-        X = X * M.unsqueeze(-1)
+        X = tc.nn.functional.normalize(X * M.unsqueeze(-1), dim=1)
         bs, ts, dim = X.shape
         with tc.no_grad():
             E = self.bert.encoder.embeddings.word_embeddings.weight[S.long()]
