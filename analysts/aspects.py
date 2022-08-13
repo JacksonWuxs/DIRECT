@@ -12,7 +12,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
-def merge(d):
+def merge(d, stopwords):
     for word in list(d):
         if word.endswith("ies") and word.replace("ies", "y") in d:
             d[word.replace("ies", "y")] += d[word]
@@ -30,7 +30,7 @@ def merge(d):
                (word.startswith("[") and word.endswith("]")) or\
                word.startswith("#") or\
                len(word) <= 2 or\
-               word.lower() in self.stopwords:
+               word.lower() in stopwords:
             del d[word]
             
 
@@ -56,7 +56,7 @@ class AspectsAnalyzer:
                             item_mem=item_memory,
                             **batch)
         for memory in item_memory:
-            merge(memory)
+            merge(memory, self.stopwords)
         vocab = set()
         for _ in item_memory:
             vocab.update(_)
@@ -86,9 +86,9 @@ class AspectsAnalyzer:
                         word_embs[word] = []
                     word_embs[word].append(emb)
                     
-        merge(word_embs)
+        merge(word_embs, self.stopwords)
         aspects = self.asp.detach().T.cpu().numpy() # (K, dim)
-        colors = ["#2878B5", "#BEB8DC", "#FA7F6F", "#C82423", "#8ECFC9"]
+        colors = ["black", "#2878B5", "#BEB8DC", "#FA7F6F", "#C82423", "#8ECFC9"]
         groups = [0] * len(aspects)
         embeds, words, labels = [StandardScaler().fit_transform(aspects)], [], []
         for word, emb in sorted(word_embs.items(), key=lambda pair: pair[1], reverse=True):

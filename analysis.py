@@ -58,7 +58,7 @@ DATA_CONFIG = {
 MODEL_CONFIG = {
     "plm": plm,
     "dropout": 0.3,
-    "aspc_num": 3, 
+    "aspc_num": 5, 
     "aspc_dim": 64,
     "gamma1": 0.0,
     "gamma2": 0.0,
@@ -98,7 +98,7 @@ if __name__ == "__main__":
         format_ = yelp if "yelp" in datafile else amazon
         meta, datas = get_subsets(datafile, format_, DATA_CONFIG)
         model = DIRECT(user_num=len(meta.users), item_num=len(meta.items), **MODEL_CONFIG)
-        best_model = "outputs/seed%d_DIRECT_%s.pth" % (SEED, datafile)
+        best_model = "outputs/seed%d_DIRECT_%s.pth" % (SEED, os.path.split(datafile)[-1])
         model.load_state_dict(tc.load(best_model))
         print("Model has been reloaded: %s" % best_model)
         do_case_study(meta, datas[0], model, "cuda", num_user=30, num_item=30, topK=0.1)
